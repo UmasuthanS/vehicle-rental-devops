@@ -4,9 +4,7 @@ import Login from './Components/Login';
 const App = () => {
   return (
     <div >
-     <Login>
-
-     </Login>
+      <Login />
     </div>
   );
 }

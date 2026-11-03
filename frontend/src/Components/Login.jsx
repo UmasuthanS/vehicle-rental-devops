@@ -1,5 +1,5 @@
 import { useState } from 'react'
-
+import { registerUser, loginUser } from '../service/authService'
 
 const Login = () => {
   const [isLoginMode, setIsLoginMode] = useState(true)
@@ -11,19 +11,27 @@ const Login = () => {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
-  const [error, setError] = useState('')
 
-  const handleSubmit = (e) => {
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const [loading, setLoading] = useState(false)
+
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!email.trim() ||
+    // Step 1: Validate empty fields
+    if (
+      !email.trim() ||
       !password ||
-      !isLoginMode && (!name.trim() || !confirmPassword)
+      (!isLoginMode && (!name.trim() || !confirmPassword))
     ) {
       setError('Please fill in all fields')
       return
     }
 
+    // Step 2: Validate signup passwords
     if (!isLoginMode && password !== confirmPassword) {
       setError('Passwords do not match')
       return
@@ -35,9 +43,50 @@ const Login = () => {
     }
 
     setError('')
+    setSuccess('')
+    setLoading(true)
 
-    console.log('Login submitted')
+    try {
+      if (isLoginMode) {
+        // LOGIN
+        const result = await loginUser({
+          email: email.trim(),
+          password
+        })
+
+        console.log('Login successful')
+
+        // Next: update authentication state
+        // and navigate to the dashboard.
+        setSuccess('Login successful!')
+
+      } else {
+        // REGISTRATION
+        const result = await registerUser({
+          name: name.trim(),
+          email: email.trim(),
+          password
+        })
+
+        console.log('Registration successful')
+
+        setSuccess('Registration successful! Please log in.')
+
+        // Switch to login mode
+        setIsLoginMode(true)
+
+        // Clear sensitive fields
+        setPassword('')
+        setConfirmPassword('')
+      }
+
+    } catch (err) {
+      setError(err.message || 'Something went wrong')
+    } finally {
+      setLoading(false)
+    }
   }
+
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       {/* Header title */}
@@ -100,7 +149,7 @@ const Login = () => {
                 <input
                   id="password"
                   value={password}
-                  onChange={(e) =>{ 
+                  onChange={(e) => {
                     setPassword(e.target.value)
                     setError('')
                   }}
@@ -163,12 +212,29 @@ const Login = () => {
                 {error}
               </p>
             )}
+
+
+            {success && (
+              <p className="mb-4 text-sm text-green-500 font-mono">
+                {success}
+              </p>
+            )}
+
           </div>
+
 
           <div>
 
-            <button type="submit" className="w-full bg-green-500 hover:bg-green-600 hover:scale-101 text-white font-mono font-bold py-2 px-4 rounded transition-transform duration-200">
-              {isLoginMode ? 'Login' : 'Sign Up'}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-green-500 hover:bg-green-600 text-white font-mono font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading
+                ? 'Please wait...'
+                : isLoginMode ? 'Login': 'Sign Up'
+         
+              }
             </button>
 
           </div>

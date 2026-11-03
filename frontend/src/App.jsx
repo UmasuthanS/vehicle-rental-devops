@@ -1,9 +1,11 @@
 import React from 'react';
 import Login from './Components/Login';
+import Navbar from './Components/Navbar';
 
 const App = () => {
   return (
-    <div >
+    <div>
+      <Navbar />
       <Login />
     </div>
   );

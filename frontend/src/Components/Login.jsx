@@ -1,274 +1,74 @@
 import { useState } from 'react'
 import { registerUser, loginUser } from '../service/authService'
 
-const Login = () => {
+export default function Login({ onLogin }) {
   const [isLoginMode, setIsLoginMode] = useState(true)
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-
-
+  const [values, setValues] = useState({ name: '', email: '', password: '', confirmPassword: '' })
+  const [visible, setVisible] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
+  const update = event => setValues({ ...values, [event.target.name]: event.target.value })
 
-
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-
-    // Step 1: Validate empty fields
-    if (
-      !email.trim() ||
-      !password ||
-      (!isLoginMode && (!name.trim() || !confirmPassword))
-    ) {
-      setError('Please fill in all fields')
-      return
+  async function handleSubmit(event) {
+    event.preventDefault()
+    setError(''); setSuccess('')
+    if (!values.email.trim() || !values.password || (!isLoginMode && (!values.name.trim() || !values.confirmPassword))) {
+      setError('Please fill in all fields.'); return
     }
-
-    // Step 2: Validate signup passwords
-    if (!isLoginMode && password !== confirmPassword) {
-      setError('Passwords do not match')
-      return
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) {
+      setError('Please enter a valid email address.'); return
     }
-
-    if (!isLoginMode && password.length < 8) {
-      setError('Password must be at least 8 characters long')
-      return
-    }
-
-    setError('')
-    setSuccess('')
-    setLoading(true)
-
-    try {
-      if (isLoginMode) {
-        // LOGIN
-        const result = await loginUser({
-          email: email.trim(),
-          password
-        })
-
-        console.log('Login successful')
-
-        // Next: update authentication state
-        // and navigate to the dashboard.
-        setSuccess('Login successful!')
-
-      } else {
-        // REGISTRATION
-        const result = await registerUser({
-          name: name.trim(),
-          email: email.trim(),
-          password
-        })
-
-        console.log('Registration successful')
-
-        setSuccess('Registration successful! Please log in.')
-
-        // Switch to login mode
-        setIsLoginMode(true)
-
-        // Clear sensitive fields
-        setPassword('')
-        setConfirmPassword('')
+    if (!isLoginMode) {
+      if (values.name.trim().length > 100) { setError('Full name must be 100 characters or fewer.'); return }
+      if (values.password.length < 8 || !/[a-zA-Z]/.test(values.password) || !/[0-9]/.test(values.password) || new TextEncoder().encode(values.password).length > 72) {
+        setError('Use at least 8 characters, including a letter and a number (maximum 72 UTF-8 bytes).'); return
       }
-
-    } catch (err) {
-      setError(err.message || 'Something went wrong')
-    } finally {
-      setLoading(false)
+      if (values.password !== values.confirmPassword) { setError('Passwords do not match.'); return }
     }
+    setLoading(true)
+    try {
+      const data = { name: values.name.trim(), email: values.email.trim(), password: values.password }
+      if (isLoginMode) {
+        const { user } = await loginUser(data)
+        onLogin(user)
+      } else {
+        await registerUser(data)
+        setIsLoginMode(true)
+        setVisible(false)
+        setValues({ ...values, password: '', confirmPassword: '' })
+        setSuccess('Account created. Sign in to get started.')
+      }
+    } catch (err) { setError(err.message) }
+    finally { setLoading(false) }
   }
 
-  return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4">
-      {/* Header title */}
-      <div className="w-full max-w-md bg-black p-6 shadow-lg shadow-green-500/50">
-
-        <div className="flex justify-center items-center border-b-2 border-green-500">
-
-          <h2 className="text-2xl font-mono font-bold text-white text-center ">
-            {isLoginMode ? "Welcome Back!" : "Welcome!"}
-          </h2>
-
-
-        </div>
-
-
-        <form onSubmit={handleSubmit}>
-          {!isLoginMode && (
-            <div className="mb-4">
-
-              <label htmlFor="name" className="block mt-2 mb-2 text-sm  font-mono font-medium text-white">
-                Full Name
-              </label>
-
-              <input
-                id="name"
-                type="text"
-                autoComplete="name"
-                placeholder="Enter your Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-2 border font-mono  focus:border-green-500 focus:outline-none text-gray-300 hover:scale-101 transition-transform duration-200"
-              />
-            </div>
-          )}
-
-
-          <div className="mb-4">
-            <label htmlFor="email" className="block mt-2 mb-2 text-sm  font-mono font-medium text-white">
-              Email
-            </label>
-
-            <input
-              id="email"
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border font-mono  focus:border-green-500 focus:outline-none text-gray-300 hover:scale-101 transition-transform duration-200"
-            />
-          </div>
-
-          <div className="mb-4">
-
-            <label htmlFor="password" className="block mt-2 mb-2 text-sm  font-mono font-medium  text-white">
-              Password
-            </label>
-
-            <div className="border border-gray-300  focus-within:border-green-500 focus-within:ring focus-within:ring-green-500 focus-within:ring-opacity-50">
-              <div className="flex flex-row ">
-                <input
-                  id="password"
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value)
-                    setError('')
-                  }}
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your password"
-                  className="w-full px-4 py-2  font-mono  focus:outline-none text-gray-300 hover:scale-101 transition-transform duration-200  "
-                />
-                <div className="flex items-center ml-2 mr-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="text-sm text-green-600 hover:underline"
-                  >
-                    {showPassword ? 'Hide' : 'Show'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {!isLoginMode && (
-            <div className="mb-4">
-
-              <label htmlFor="confirmPassword" className="block mt-2 mb-2 text-sm  font-mono font-medium  text-white">
-                Confirm Password
-              </label>
-
-              <div className="border border-gray-300  focus-within:border-green-500 focus-within:ring focus-within:ring-green-500 focus-within:ring-opacity-50">
-                <div className="flex flex-row ">
-                  <input
-                    id="confirmPassword"
-                    value={confirmPassword}
-                    onChange={(e) => {
-                      setConfirmPassword(e.target.value)
-                      setError('')
-                    }}
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    placeholder="Re-Enter your password"
-                    className="w-full px-4 py-2  font-mono  focus:outline-none text-gray-300 hover:scale-101 transition-transform duration-200  "
-                  />
-                  <div className="flex items-center ml-2 mr-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="text-sm text-green-600 hover:underline"
-                    >
-                      {showConfirmPassword ? 'Hide' : 'Show'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-
-
-          <div>
-            {error && (
-              <p className="mb-4 text-sm text-red-500 font-mono">
-                {error}
-              </p>
-            )}
-
-
-            {success && (
-              <p className="mb-4 text-sm text-green-500 font-mono">
-                {success}
-              </p>
-            )}
-
-          </div>
-
-
-          <div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-green-500 hover:bg-green-600 text-white font-mono font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading
-                ? 'Please wait...'
-                : isLoginMode ? 'Login': 'Sign Up'
-         
-              }
-            </button>
-
-          </div>
-          <div className="text-right mt-4 ">
-            <a
-              href="#"
-              className="text-sm text-green-600 hover:underline"
-            >
-              Forgot password?
-            </a>
-          </div>
-          <p className="text-center text-gray-400 mt-4">
-            {isLoginMode ? "Don't have an account?" : "Already have an account?"}
-
-            <button
-              type="button"
-              onClick={() => {
-                setIsLoginMode(!isLoginMode)
-                setError('')
-              }}
-              className="text-green-600 ml-2 hover:underline"
-            >
-              {isLoginMode ? 'Sign Up' : 'Login'}
-            </button>
-          </p>
-
-        </form>
-
-
-
+  return <main className="auth-layout">
+    <section className="brand-panel" aria-label="Vehicle Rental">
+      <span className="eyebrow">YOUR NEXT CHAPTER, ON THE ROAD</span>
+      <h1>Every journey<br />starts here<span>.</span></h1>
+      <p>A little freedom. A new destination.<br />Your journey begins with Vehicle Rental.</p>
+      <div className="journey-note"><span className="road-line" /> Built for the way you move</div>
+    </section>
+    <section className="form-panel" aria-labelledby="form-title">
+      <div className="form-heading"><span className="eyebrow">VEHICLE RENTAL · MEMBER ACCESS</span>
+        <h2 id="form-title">{isLoginMode ? 'Welcome back.' : 'Start your journey.'}</h2>
+        <p>{isLoginMode ? 'Sign in to your account and pick up where you left off.' : 'Create your customer account in a few simple steps.'}</p>
       </div>
-    </div>
-  )
+      <form onSubmit={handleSubmit} noValidate aria-busy={loading}>
+        <fieldset disabled={loading}>
+          {!isLoginMode && <div className="field"><label htmlFor="name">Full name</label><input id="name" name="name" autoComplete="name" maxLength={100} value={values.name} onChange={update} required placeholder="Your full name" /></div>}
+          <div className="field"><label htmlFor="email">Email address</label><input id="email" name="email" type="email" autoComplete="email" maxLength={254} value={values.email} onChange={update} required placeholder="you@example.com" /></div>
+          <div className="field"><label htmlFor="password">Password</label><div className="password-field"><input id="password" name="password" type={visible ? 'text' : 'password'} autoComplete={isLoginMode ? 'current-password' : 'new-password'} value={values.password} onChange={update} required aria-describedby={!isLoginMode ? 'password-help' : undefined} placeholder={isLoginMode ? 'Enter your password' : 'Create a strong password'} /><button type="button" onClick={() => setVisible(!visible)} aria-label={visible ? 'Hide password' : 'Show password'} aria-pressed={visible}>{visible ? 'Hide' : 'Show'}</button></div>
+            {!isLoginMode && <small id="password-help">8+ characters with a letter and a number. Maximum 72 UTF-8 bytes.</small>}</div>
+          {!isLoginMode && <div className="field"><label htmlFor="confirmPassword">Confirm password</label><input id="confirmPassword" name="confirmPassword" type={visible ? 'text' : 'password'} autoComplete="new-password" value={values.confirmPassword} onChange={update} required placeholder="Repeat your password" /></div>}
+          {error && <p className="notice error" role="alert">{error}</p>}
+          {success && <p className="notice success" role="status">{success}</p>}
+          <button className="primary-button" type="submit" disabled={loading}>{loading ? 'Please wait…' : isLoginMode ? 'Sign in' : 'Create account'}<span aria-hidden="true">↗</span></button>
+          <p className="switch-mode">{isLoginMode ? 'New to Vehicle Rental?' : 'Already have an account?'} <button type="button" onClick={() => { setIsLoginMode(!isLoginMode); setValues({ ...values, password: '', confirmPassword: '' }); setError(''); setSuccess(''); setVisible(false) }}>{isLoginMode ? 'Create an account' : 'Sign in'}</button></p>
+        </fieldset>
+      </form>
+      <p className="form-footer">Your next destination is closer than you think.</p>
+    </section>
+  </main>
 }
-
-export default Login
-

@@ -3,10 +3,12 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Login from '../src/Components/Login'
 import App from '../src/App'
+import { MemoryRouter } from 'react-router-dom'
 import * as api from '../src/service/authService'
 
-vi.mock('../src/service/authService', () => ({ registerUser: vi.fn(), loginUser: vi.fn(), getCurrentUser: vi.fn(), logoutUser: vi.fn(), request: vi.fn() }))
+vi.mock('../src/service/authService', () => ({ registerUser: vi.fn(), loginUser: vi.fn(), getCurrentUser: vi.fn(), logoutUser: vi.fn(), request: vi.fn(), apiBaseUrl: '/api' }))
 afterEach(() => vi.resetAllMocks())
+const renderApp = () => render(<MemoryRouter initialEntries={['/dashboard']}><App /></MemoryRouter>)
 const user = { id: 1, name: 'Test Driver', email: 'driver@example.com', role: 'customer' }
 async function fillRegistration(password = 'Password123', confirmation = password) {
   const actor = userEvent.setup()
@@ -69,21 +71,21 @@ describe('authentication UI', () => {
     api.getCurrentUser.mockResolvedValue({ user: { ...user, role } })
     api.request.mockResolvedValue({ message: 'Welcome to your dashboard.' })
     api.logoutUser.mockResolvedValue({})
-    render(<App />)
+    renderApp()
     expect(await screen.findByText(`Hello, ${user.name}.`)).toBeInTheDocument()
     await waitFor(() => expect(api.request).toHaveBeenCalledWith(`/dashboard/${role}`))
-    await userEvent.click(screen.getByRole('button', { name: /Sign out/ }))
+    await userEvent.click(screen.getAllByRole('button', { name: /Sign out/ }).at(-1))
     expect(await screen.findByRole('heading', { name: 'Welcome back.' })).toBeInTheDocument()
   })
   it('shows sign in when session restoration returns 401', async () => {
     api.getCurrentUser.mockRejectedValue(Object.assign(new Error('Authentication required'), { status: 401 }))
-    render(<App />)
+    renderApp()
     expect(await screen.findByRole('heading', { name: 'Welcome back.' })).toBeInTheDocument()
   })
   it('navigates from login to the database-backed dashboard', async () => {
     api.getCurrentUser.mockRejectedValue(Object.assign(new Error(), { status: 401 }))
     api.loginUser.mockResolvedValue({ user }); api.request.mockResolvedValue({ message: 'Welcome.' })
-    render(<App />)
+    renderApp()
     await screen.findByRole('heading', { name: 'Welcome back.' })
     fireEvent.change(screen.getByLabelText('Email address'), { target: { value: user.email } })
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'Password123' } })

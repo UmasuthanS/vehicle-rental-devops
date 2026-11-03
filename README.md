@@ -1,8 +1,39 @@
-# Vehicle Rental — Full-stack Authentication
+# Vehicle Rental Management System
 
 Group 79 · University of Ruhuna, Faculty of Engineering
 
 React 19 + Vite + Tailwind, Express 5, MySQL/mysql2, bcrypt and JWT. Existing React components and the centralized fetch client are retained. Public signup creates customers only. Accounts can sign in, open a role-specific dashboard, refresh with their session intact, and sign out.
+
+## Phase 1: homepage and navigation
+
+The public homepage is at `/`. It includes responsive navigation, a local vehicle photograph, search entry point, category links, featured inventory states, the rental process, and footer navigation. Login and registration remain at `/login` and `/register`; `/dashboard` preserves the existing customer/owner/admin landing pages. `/bookings` requires a valid session and preserves its destination through login. Unknown URLs show a recovery link.
+
+`/vehicles` and `/vehicles/:id` are explicitly marked as upcoming Phase 2 destinations; search text and category are preserved in query parameters. Reservation functionality is not implemented in this phase. No database or backend changes were needed.
+
+Featured vehicles request the real `/api/vehicles` endpoint through the shared fetch client, deriving the API root from the existing `VITE_API_URL` ending in `/auth`. The endpoint currently returns 404, so the homepage explains that the catalog is not connected yet. Loading, empty inventory, malformed responses, and network errors are handled separately, with retry. When the API exists, an array or `{ "vehicles": [...] }` is accepted and up to three records are displayed with database prices in LKR. No sample listings are presented as inventory. Contact details are omitted until verified information is configured.
+
+Local commands (use the existing configured environment files):
+
+```sh
+npm ci --prefix frontend
+npm start --prefix Backend
+# In a second terminal:
+npm run dev --prefix frontend
+```
+
+Open http://localhost:5173. Ensure `VITE_API_URL` points to the running backend auth URL and `FRONTEND_URL` matches the Vite origin; restart Vite after editing environment variables. The existing Docker files are unchanged; to display the new frontend with the existing Compose setup, rebuild it with `docker compose up -d --build frontend` and open http://localhost:8080.
+
+Verification commands:
+
+```sh
+npm run lint --prefix frontend
+npm test --prefix frontend
+npm run build --prefix frontend
+```
+
+Phase 1 checks passed: frontend lint, production build, 28 frontend tests, 25 backend tests including real isolated MySQL, and both desktop/mobile authentication browser tests. The existing isolated-database authentication browser tests now start at `/login`. See the testing section below for their environment setup. Homepage desktop/mobile browser checks covered real API-unavailable feedback, category/search navigation, registration/login destinations, mobile menu state, contact scrolling, and horizontal overflow. Hero photograph: [Unsplash image source](https://images.unsplash.com/photo-1503376780353-7e6692767b70), stored locally in `frontend/src/assets/home-hero.jpg` as illustrative imagery, not listed inventory. The previous `hero.png` is a Vite starter graphic and is preserved.
+
+Git: no local or remote develop branch existed after fetching, so local `develop` was initialized at the existing completed baseline (`0e96984`). `feature/homepage` shares that base. Push develop before opening the homepage PR, then merge the PR into develop yourself. Phase 2 begins only after explicit instruction.
 
 ## Docker Desktop: frontend, backend and MySQL
 

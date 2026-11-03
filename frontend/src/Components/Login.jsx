@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { registerUser, loginUser } from '../service/authService'
 
-export default function Login({ onLogin }) {
-  const [isLoginMode, setIsLoginMode] = useState(true)
-  const [values, setValues] = useState({ name: '', email: '', password: '', confirmPassword: '' })
+export default function Login({ onLogin, initialMode = 'login', onModeChange, successMessage = '', initialEmail = '' }) {
+  const [isLoginMode, setIsLoginMode] = useState(initialMode === 'login')
+  const [values, setValues] = useState({ name: '', email: initialEmail, password: '', confirmPassword: '' })
   const [visible, setVisible] = useState(false)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
+  const [success, setSuccess] = useState(successMessage)
   const [loading, setLoading] = useState(false)
   const update = event => setValues({ ...values, [event.target.name]: event.target.value })
 
@@ -34,6 +34,10 @@ export default function Login({ onLogin }) {
         onLogin(user)
       } else {
         await registerUser(data)
+        if (onModeChange) {
+          onModeChange('login', { registeredEmail: values.email.trim() })
+          return
+        }
         setIsLoginMode(true)
         setVisible(false)
         setValues({ ...values, password: '', confirmPassword: '' })
@@ -43,7 +47,7 @@ export default function Login({ onLogin }) {
     finally { setLoading(false) }
   }
 
-  return <main className="auth-layout">
+  return <main id="main-content" className="auth-layout">
     <section className="brand-panel" aria-label="Vehicle Rental">
       <span className="eyebrow">YOUR NEXT CHAPTER, ON THE ROAD</span>
       <h1>Every journey<br />starts here<span>.</span></h1>
@@ -65,7 +69,7 @@ export default function Login({ onLogin }) {
           {error && <p className="notice error" role="alert">{error}</p>}
           {success && <p className="notice success" role="status">{success}</p>}
           <button className="primary-button" type="submit" disabled={loading}>{loading ? 'Please wait…' : isLoginMode ? 'Sign in' : 'Create account'}<span aria-hidden="true">↗</span></button>
-          <p className="switch-mode">{isLoginMode ? 'New to Vehicle Rental?' : 'Already have an account?'} <button type="button" onClick={() => { setIsLoginMode(!isLoginMode); setValues({ ...values, password: '', confirmPassword: '' }); setError(''); setSuccess(''); setVisible(false) }}>{isLoginMode ? 'Create an account' : 'Sign in'}</button></p>
+          <p className="switch-mode">{isLoginMode ? 'New to Vehicle Rental?' : 'Already have an account?'} <button type="button" onClick={() => { if (onModeChange) { onModeChange(isLoginMode ? 'register' : 'login'); return } setIsLoginMode(!isLoginMode); setValues({ ...values, password: '', confirmPassword: '' }); setError(''); setSuccess(''); setVisible(false) }}>{isLoginMode ? 'Create an account' : 'Sign in'}</button></p>
         </fieldset>
       </form>
       <p className="form-footer">Your next destination is closer than you think.</p>

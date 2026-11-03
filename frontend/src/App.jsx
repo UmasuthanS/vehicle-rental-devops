@@ -1,15 +1,23 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import Login from './Components/Login'
 import Navbar from './Components/Navbar'
-import { getCurrentUser, logoutUser, request } from './service/authService'
+import Footer from './Components/Footer'
+import Home from './pages/Home'
+import Dashboard from './pages/Dashboard'
+import Upcoming from './pages/Upcoming'
+import FeaturedVehicles from './Components/FeaturedVehicles'
+import { getCurrentUser, logoutUser } from './service/authService'
+import './home.css'
 
-const roles = { customer: 'Customer dashboard', owner: 'Vehicle owner dashboard', admin: 'Administration dashboard' }
 export default function App() {
   const [user, setUser] = useState(null)
   const [restoring, setRestoring] = useState(true)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
-  const [dashboard, setDashboard] = useState('')
+  const location = useLocation()
+  const navigate = useNavigate()
+  const clearSession = useCallback(() => setUser(null), [])
   useEffect(() => {
     let active = true
     getCurrentUser().then(result => { if (active) setUser(result.user) }).catch(err => {
@@ -18,24 +26,36 @@ export default function App() {
     return () => { active = false }
   }, [])
   useEffect(() => {
-    if (!user) return
-    let active = true
-    request(`/dashboard/${user.role}`).then(result => { if (active) setDashboard(result.message) }).catch(err => {
-      if (!active) return
-      setError(err.message)
-      if (err.status === 401 || err.status === 403) setUser(null)
-    })
-    return () => { active = false }
-  }, [user])
+    if (location.hash === '#contact') document.getElementById('contact')?.scrollIntoView?.({ behavior: 'smooth' })
+    else document.documentElement.scrollTop = 0
+  }, [location.pathname, location.hash])
   async function logout() {
     setBusy(true); setError('')
-    try { await logoutUser(); setUser(null); setDashboard('') }
+    try { await logoutUser(); setUser(null); navigate('/login') }
     catch (err) { setError(err.message) }
     finally { setBusy(false) }
   }
-  return <><Navbar />{error && <div className="global-error notice error" role="alert">{error}<button type="button" onClick={() => window.location.reload()}>Retry</button></div>}
-    {restoring ? <main className="session-loading" role="status">Restoring your session…</main> : user && roles[user.role] ?
-      <main className="dashboard"><span className="eyebrow">YOUR ACCOUNT</span><h1>{roles[user.role]}</h1><p>{dashboard || 'Loading your dashboard…'}</p><section className="profile-card"><h2>Hello, {user.name}.</h2><dl><dt>Email</dt><dd>{user.email}</dd><dt>Role</dt><dd>{user.role}</dd></dl><button className="primary-button" onClick={logout} disabled={busy}>{busy ? 'Signing out…' : 'Sign out'}<span aria-hidden="true">↗</span></button></section></main> :
-      <Login onLogin={profile => { setError(''); setUser(profile) }} />}
+  function protect(content) {
+    if (restoring) return <main id="main-content" className="session-loading" role="status">Restoring your session…</main>
+    return user ? content : <Navigate to="/login" state={{ from: location.pathname + location.search }} replace />
+  }
+  const destination = location.state?.from
+  const postLoginPath = typeof destination === 'string' && /^\/(dashboard|bookings)(\?|$)/.test(destination) ? destination : '/dashboard'
+  function authPage(mode) {
+    if (restoring) return <main id="main-content" className="session-loading" role="status">Restoring your session…</main>
+    if (user) return <Navigate to={postLoginPath} replace />
+    return <Login key={mode} initialMode={mode} initialEmail={location.state?.registeredEmail || ''}
+      successMessage={location.state?.registeredEmail ? 'Account created. Sign in to get started.' : ''}
+      onModeChange={(next, state) => navigate(`/${next}`, { state: { ...location.state, ...state } })}
+      onLogin={profile => {
+        setError(''); setUser(profile)
+      }} />
+  }
+  return <><a className="skip-link" href="#main-content">Skip to content</a><Navbar user={user} restoring={restoring} onLogout={logout} busy={busy} />
+    {error && <div className="global-error notice error" role="alert">{error}<button type="button" onClick={() => window.location.reload()}>Retry</button></div>}
+    <Routes><Route path="/" element={<Home featured={<FeaturedVehicles />} />} /><Route path="/login" element={authPage('login')} /><Route path="/register" element={authPage('register')} />
+      <Route path="/dashboard" element={protect(user && <Dashboard user={user} onLogout={logout} busy={busy} onSessionInvalid={clearSession} />)} />
+      <Route path="/bookings" element={protect(<Upcoming bookings />)} /><Route path="/vehicles" element={<Upcoming />} /><Route path="/vehicles/:id" element={<Upcoming />} />
+      <Route path="*" element={<Upcoming notFound />} /></Routes><Footer />
   </>
 }

@@ -8,7 +8,8 @@
     "dev": "node --watch Server.js",
     "test": "node --test",
     "migrate": "node scripts/migrate.js",
-    "provision": "node scripts/provision.js"
+    "provision": "node scripts/provision.js",
+    "setup:db": "node scripts/setup-database.js"
   },
   "keywords": [],
   "author": "",

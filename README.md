@@ -30,7 +30,7 @@ EXIT;
 Edit `Backend/.env` with your database settings. Generate a JWT secret with `openssl rand -hex 32` and paste it into that ignored file. Do not use the placeholder secret. Then:
 
 ```sh
-npm run migrate --prefix Backend
+npm run setup:db --prefix Backend
 npm run dev --prefix Backend
 ```
 
@@ -43,6 +43,10 @@ npm run dev --prefix frontend
 Open **http://localhost:5173**. Choose **Create an account**, supply your name, email and a password containing at least 8 characters, a letter and a number (maximum 72 UTF-8 bytes). Sign in with that account. No seeded credentials or simulated authentication are provided.
 
 `npm start --prefix Backend` runs the backend without watch mode. `npm run build --prefix frontend` builds the frontend. A production static host must serve `frontend/dist` and forward SPA paths to `index.html`.
+
+`setup:db` safely creates the configured database and users table when absent. It requires a valid MySQL login with CREATE permission; it does not reset passwords or delete data. Run it again after fixing database settings if setup fails. Use `npm run migrate --prefix Backend` when the database already exists and only table initialization is needed.
+
+If startup fails, the backend now identifies missing configuration, rejected MySQL credentials, unavailable MySQL, missing schema, or an occupied port. Configure the existing MySQL password in `Backend/.env`; the application cannot infer or reset it.
 
 ## Configuration
 
@@ -128,7 +132,7 @@ unset TEST_DB_PASSWORD
 
 Only databases named `test_auth_*` are accepted. Tests delete only their randomly named synthetic accounts, never development accounts. Browser tests start isolated servers on ports 5001/5174, use a fresh random signing secret, and check desktop and mobile Chromium layouts. Ports must be free. MySQL must be accessible and its test schema initialized first. Never point tests at the development database.
 
-Verified in this implementation: 22 backend checks passed (11 HTTP contract and 11 real MySQL integration); 15 frontend tests passed; lint and production build passed. Both desktop and mobile browser flows passed against the real Express API and isolated MySQL database.
+Verified in this implementation: 25 backend checks passed (11 HTTP contract, 11 real MySQL integration, and 3 configuration/error checks); 15 frontend tests passed; lint and production build passed. Both desktop and mobile browser flows passed against the real Express API and isolated MySQL database.
 
 ## Limitations and manual browser checklist
 

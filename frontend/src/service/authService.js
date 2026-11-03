@@ -1,31 +1,26 @@
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api/auth').replace(/\/$/, '')
 
-const API_URL = import.meta.env.VITE_API_URL;
-
-const sendRequest = async (endpoint, userData) => {
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    credentials: 'include',
-    body: JSON.stringify(userData)
-  });
-
-  const result = await response.json();
-
-  if (!response.ok) {
-    throw new Error(result.message || 'Request failed');
+export async function request(endpoint, data) {
+  let response
+  try {
+    response = await fetch(`${API_URL}${endpoint}`, {
+      method: data === undefined ? 'GET' : 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'VehicleRental' },
+      ...(data === undefined ? {} : { body: JSON.stringify(data) }),
+    })
+  } catch {
+    throw new Error('Unable to reach the server. Check your connection and try again.')
   }
-
-  return result;
-};
-
-// Register new user
-export const registerUser = async (userData) => {
-  return sendRequest('/register', userData);
-};
-
-// Login existing user
-export const loginUser = async (userData) => {
-  return sendRequest('/login', userData);
-};
+  const result = await response.json().catch(() => ({}))
+  if (!response.ok) {
+    const error = new Error(result.message || 'The request failed. Please try again.')
+    error.status = response.status
+    throw error
+  }
+  return result
+}
+export const registerUser = data => request('/register', data)
+export const loginUser = data => request('/login', data)
+export const getCurrentUser = () => request('/me')
+export const logoutUser = () => request('/logout', {})

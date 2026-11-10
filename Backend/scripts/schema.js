@@ -11,5 +11,6 @@ async function initializeSchema(pool) {
   }
   await pool.query('SELECT id, name, email, password_hash, role, created_at FROM users LIMIT 0');
   await pool.query('SELECT id, name, type, location, daily_rate FROM vehicles LIMIT 0');
+  await pool.query('SELECT id, vehicle_id, customer_id, start_date, end_date, status, total_price FROM reservations LIMIT 0');
 }
 module.exports = { initializeSchema };

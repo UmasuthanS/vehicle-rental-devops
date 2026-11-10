@@ -6,6 +6,8 @@ import Footer from './Components/Footer'
 import Home from './pages/Home'
 import Dashboard from './pages/Dashboard'
 import Upcoming from './pages/Upcoming'
+import Vehicles from './pages/Vehicles'
+import VehicleDetails from './pages/VehicleDetails'
 import FeaturedVehicles from './Components/FeaturedVehicles'
 import { getCurrentUser, logoutUser } from './service/authService'
 import './home.css'
@@ -55,7 +57,9 @@ export default function App() {
     {error && <div className="global-error notice error" role="alert">{error}<button type="button" onClick={() => window.location.reload()}>Retry</button></div>}
     <Routes><Route path="/" element={<Home featured={<FeaturedVehicles />} />} /><Route path="/login" element={authPage('login')} /><Route path="/register" element={authPage('register')} />
       <Route path="/dashboard" element={protect(user && <Dashboard user={user} onLogout={logout} busy={busy} onSessionInvalid={clearSession} />)} />
-      <Route path="/bookings" element={protect(<Upcoming bookings />)} /><Route path="/vehicles" element={<Upcoming />} /><Route path="/vehicles/:id" element={<Upcoming />} />
+      <Route path="/bookings" element={protect(<Upcoming bookings />)} />
+      <Route path="/vehicles" element={<Vehicles />} />
+      <Route path="/vehicles/:id" element={<VehicleDetails />} />
       <Route path="*" element={<Upcoming notFound />} /></Routes><Footer />
   </>
 }

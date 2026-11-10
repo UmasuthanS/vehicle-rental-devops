@@ -37,3 +37,19 @@ VALUES
   (6, 'Honda Dio 110', 'motorcycle', 'Mirissa', 4500.00, 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800&auto=format&fit=crop&q=80', 'Lightweight, easy-handling automatic scooter with under-seat helmet storage.', 2, 'Petrol', 'Automatic', TRUE)
 ON DUPLICATE KEY UPDATE name=VALUES(name);
 
+CREATE TABLE IF NOT EXISTS reservations (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  vehicle_id INT UNSIGNED NOT NULL,
+  customer_id INT UNSIGNED NOT NULL,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  status ENUM('confirmed', 'cancelled', 'completed') NOT NULL DEFAULT 'confirmed',
+  total_price DECIMAL(10, 2) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_reservations_vehicle_dates (vehicle_id, start_date, end_date, status),
+  KEY idx_reservations_customer (customer_id),
+  CONSTRAINT fk_reservations_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicles (id) ON DELETE RESTRICT,
+  CONSTRAINT fk_reservations_customer FOREIGN KEY (customer_id) REFERENCES users (id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+

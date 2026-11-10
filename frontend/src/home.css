@@ -135,3 +135,64 @@
   .nav-account { margin-top: 12px; border-top: 1px solid #ffffff25; padding-top: 20px; justify-content: space-between; }
   .vehicle-grid { grid-template-columns: 1fr; }
 }
+
+/* Vehicle Catalog & Details */
+.catalog-page { background: #f5f5ef; min-height: 80vh; }
+.catalog-hero { background: #202d28; color: #fff; padding: 50px 0 35px; border-bottom: 1px solid #33443a; }
+.catalog-hero h1 { font-size: clamp(34px, 4.5vw, 56px); font-weight: 500; letter-spacing: -2px; margin: 12px 0; }
+.catalog-hero h1 span { color: #c3ed93; }
+.catalog-hero p { color: #d4e0ce; font-size: 15px; margin: 0; }
+.catalog-hero .eyebrow { color: #c3ed93; }
+.catalog-content { padding-top: 40px; }
+.catalog-controls { background: #fff; border: 1px solid #dfe5d8; border-radius: 8px; padding: 24px; margin-bottom: 30px; box-shadow: 0 4px 14px #19281708; }
+.category-pills { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+.pill-btn { background: #f0f4ec; border: 1px solid #d4ded0; color: #23351f; padding: 8px 18px; border-radius: 30px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all .18s; }
+.pill-btn:hover { background: #e3ebd9; border-color: #8da47f; }
+.pill-btn.active { background: #202d28; color: #c3ed93; border-color: #202d28; }
+.catalog-filter-form { display: grid; grid-template-columns: 2fr 1.6fr auto; gap: 20px; align-items: end; }
+.filter-input-wrap label, .filter-price-wrap label { display: block; font-size: 10px; font-weight: 700; letter-spacing: 1.2px; color: #667461; margin-bottom: 6px; }
+.filter-input-wrap input { width: 100%; border: 1px solid #ccd6c7; border-radius: 6px; padding: 10px 14px; font-size: 14px; background: #fff; }
+.filter-price-wrap { display: flex; gap: 12px; }
+.filter-price-wrap > div { flex: 1; }
+.filter-price-wrap input { width: 100%; border: 1px solid #ccd6c7; border-radius: 6px; padding: 10px 12px; font-size: 14px; background: #fff; }
+.filter-actions { display: flex; align-items: center; gap: 14px; }
+.apply-btn { padding: 12px 22px; font-size: 13px; cursor: pointer; }
+.reset-btn { background: none; border: 0; cursor: pointer; }
+.catalog-count { font-size: 13px; color: #63705f; font-weight: 500; margin: 0 0 20px 4px; }
+
+/* Vehicle Details Page */
+.vehicle-details-page { max-width: 1180px; margin: auto; padding: 40px 32px 80px; }
+.details-breadcrumb { margin-bottom: 24px; }
+.vehicle-details-layout { display: grid; grid-template-columns: 1.15fr 1fr; gap: 48px; align-items: start; }
+.details-media { position: sticky; top: 30px; }
+.details-image-frame { border-radius: 10px; overflow: hidden; background: #e7ece3; aspect-ratio: 16 / 11; border: 1px solid #dfe5d8; box-shadow: 0 10px 30px #0000000d; }
+.details-image-frame img { width: 100%; height: 100%; object-fit: cover; }
+.details-image-fallback { display: grid; place-items: center; height: 100%; color: #62735b; font-size: 14px; }
+.details-summary { display: flex; flex-direction: column; gap: 24px; }
+.vehicle-type-tag { display: inline-block; background: #e2ebd9; color: #324e23; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; padding: 5px 12px; border-radius: 4px; }
+.details-header h1 { font-size: clamp(28px, 3.4vw, 42px); font-weight: 500; letter-spacing: -1.2px; margin: 10px 0 8px; line-height: 1.15; }
+.details-location { color: #63705f; font-size: 14px; margin: 0; }
+.details-price-card { background: #fff; border: 1px solid #dfe5d8; border-radius: 8px; padding: 22px 26px; display: flex; flex-direction: column; gap: 6px; }
+.price-label { font-size: 11px; letter-spacing: 1px; color: #73846e; text-transform: uppercase; font-weight: 600; }
+.price-amount { margin: 0; }
+.price-amount strong { font-size: 32px; font-weight: 600; color: #17251c; }
+.price-amount small { font-size: 14px; color: #63705f; margin-left: 4px; }
+.status-pill { align-self: flex-start; margin-top: 6px; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; letter-spacing: .8px; }
+.status-pill.available { background: #d7f2bf; color: #204b12; }
+.status-pill.unavailable { background: #fce4e4; color: #7f1d1d; }
+.specs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.spec-card { background: #fff; border: 1px solid #dfe5d8; border-radius: 8px; padding: 16px; text-align: center; }
+.spec-label { display: block; font-size: 11px; color: #73846e; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+.spec-value { font-size: 15px; font-weight: 600; color: #17251c; }
+.details-description h3 { font-size: 17px; font-weight: 500; margin: 0 0 10px; }
+.details-description p { color: #5a6856; line-height: 1.8; font-size: 14px; margin: 0; }
+.details-actions { display: flex; gap: 16px; align-items: center; margin-top: 8px; flex-wrap: wrap; }
+.reserve-btn { flex: 1; justify-content: center; min-width: 220px; }
+.secondary-button { padding: 16px 24px; border: 1px solid #ccd6c7; border-radius: 5px; font-size: 14px; font-weight: 600; color: #2d4224; background: #fff; text-align: center; transition: background .18s; }
+.secondary-button:hover { background: #f0f4ec; }
+
+@media (max-width: 900px) {
+  .catalog-filter-form { grid-template-columns: 1fr; gap: 14px; }
+  .vehicle-details-layout { grid-template-columns: 1fr; gap: 32px; }
+  .details-media { position: static; }
+}

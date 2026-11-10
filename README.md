@@ -35,6 +35,15 @@ Phase 1 checks passed: frontend lint, production build, 28 frontend tests, 25 ba
 
 Git: no local or remote develop branch existed after fetching, so local `develop` was initialized at the existing completed baseline (`0e96984`). `feature/homepage` shares that base. Push develop before opening the homepage PR, then merge the PR into develop yourself. Phase 2 begins only after explicit instruction.
 
+## Phase 2: vehicle catalog and details
+
+The vehicle catalog is live at `/vehicles`, backed by the MySQL `vehicles` table and `GET /api/vehicles`. It supports category filtering (`car`, `van`, `motorcycle`), text search query parameters (`q`), price range boundaries (`minPrice`, `maxPrice`), and availability status. The vehicle details page is at `/vehicles/:id`, displaying full vehicle specifications (capacity, transmission, fuel type), daily rates in LKR, descriptions, and reservation actions routing to `/bookings?vehicleId=:id`.
+
+Backend additions:
+- MySQL schema: `vehicles` table with indexes on `type`, `location`, and `available`, plus idempotent seed fixtures in `Backend/database/int.sql`.
+- REST endpoints: `GET /api/vehicles` (query filters) and `GET /api/vehicles/:id` (individual vehicle details).
+
+
 ## Docker Desktop: frontend, backend and MySQL
 
 Start Docker Desktop, then run these commands from the repository root:

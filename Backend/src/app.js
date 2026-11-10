@@ -3,6 +3,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const { csrf, errorHandler } = require('./middleware/auth');
 const { authRoutes } = require('./routes/auth');
+const { vehicleRoutes } = require('./routes/vehicles');
 function createApp(pool, config) {
   const app = express();
   app.disable('x-powered-by');
@@ -14,6 +15,7 @@ function createApp(pool, config) {
   });
   app.use(express.json({ limit: '10kb' }), cookieParser(), csrf(config));
   app.use('/api/auth', authRoutes(pool, config));
+  app.use('/api/vehicles', vehicleRoutes(pool, config));
   app.use((req, res) => res.status(404).json({ message: 'Endpoint not found.' }));
   app.use(errorHandler);
   return app;

@@ -4,13 +4,15 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import App from '../src/App'
 import { getCurrentUser, loginUser, request } from '../src/service/authService'
-import { getFeaturedVehicles } from '../src/service/vehicleService'
+import { getFeaturedVehicles, getVehicles, getVehicleById } from '../src/service/vehicleService'
 vi.mock('../src/service/authService', () => ({ getCurrentUser: vi.fn(), logoutUser: vi.fn(), loginUser: vi.fn(), registerUser: vi.fn(), request: vi.fn(), apiBaseUrl: '/api' }))
-vi.mock('../src/service/vehicleService', () => ({ getFeaturedVehicles: vi.fn() }))
+vi.mock('../src/service/vehicleService', () => ({ getFeaturedVehicles: vi.fn(), getVehicles: vi.fn(), getVehicleById: vi.fn() }))
 beforeEach(() => {
   vi.resetAllMocks()
   getCurrentUser.mockRejectedValue(Object.assign(new Error('Authentication required'), { status: 401 }))
   getFeaturedVehicles.mockRejectedValue(Object.assign(new Error('Endpoint not found'), { status: 404 }))
+  getVehicles.mockResolvedValue([])
+  getVehicleById.mockResolvedValue({ id: 1, name: 'Sample Vehicle', type: 'car', location: 'Colombo', daily_rate: '10000.00' })
 })
 const show = (route = '/') => render(<MemoryRouter initialEntries={[route]}><App /></MemoryRouter>)
 it('opens the public homepage without displaying a login form', async () => {
@@ -19,13 +21,13 @@ it('opens the public homepage without displaying a login form', async () => {
   expect(screen.queryByLabelText('Password')).not.toBeInTheDocument()
   expect(await screen.findByText('Vehicle listings are on their way.')).toBeInTheDocument()
 })
-it('submits search to the future catalog destination with search preserved', async () => {
+it('submits search to the catalog destination with search preserved', async () => {
   show()
   fireEvent.change(screen.getByLabelText('WHERE WILL YOU GO?'), { target: { value: 'Galle' } })
   fireEvent.change(screen.getByLabelText('YOUR KIND OF RIDE'), { target: { value: 'van' } })
   await userEvent.click(screen.getByRole('button', { name: /Find a ride/ }))
-  expect(screen.getByRole('heading', { name: 'Vehicle catalog' })).toBeInTheDocument()
-  expect(screen.getByText('Your search: Galle · van')).toBeInTheDocument()
+  expect(await screen.findByRole('heading', { name: 'Find Your Ideal Vehicle.' })).toBeInTheDocument()
+  expect(getVehicles).toHaveBeenCalledWith(expect.objectContaining({ q: 'Galle', type: 'van' }))
 })
 it('has an accessible mobile menu and closes it after navigation', async () => {
   show()

@@ -5,14 +5,17 @@ import { MemoryRouter } from 'react-router-dom'
 import App from '../src/App'
 import { getCurrentUser, loginUser, request } from '../src/service/authService'
 import { getFeaturedVehicles, getVehicles, getVehicleById } from '../src/service/vehicleService'
+import { getMyReservations } from '../src/service/reservationService'
 vi.mock('../src/service/authService', () => ({ getCurrentUser: vi.fn(), logoutUser: vi.fn(), loginUser: vi.fn(), registerUser: vi.fn(), request: vi.fn(), apiBaseUrl: '/api' }))
 vi.mock('../src/service/vehicleService', () => ({ getFeaturedVehicles: vi.fn(), getVehicles: vi.fn(), getVehicleById: vi.fn() }))
+vi.mock('../src/service/reservationService', () => ({ getMyReservations: vi.fn().mockResolvedValue([]), createReservation: vi.fn(), cancelReservation: vi.fn() }))
 beforeEach(() => {
   vi.resetAllMocks()
   getCurrentUser.mockRejectedValue(Object.assign(new Error('Authentication required'), { status: 401 }))
   getFeaturedVehicles.mockRejectedValue(Object.assign(new Error('Endpoint not found'), { status: 404 }))
   getVehicles.mockResolvedValue([])
   getVehicleById.mockResolvedValue({ id: 1, name: 'Sample Vehicle', type: 'car', location: 'Colombo', daily_rate: '10000.00' })
+  getMyReservations.mockResolvedValue([])
 })
 const show = (route = '/') => render(<MemoryRouter initialEntries={[route]}><App /></MemoryRouter>)
 it('opens the public homepage without displaying a login form', async () => {

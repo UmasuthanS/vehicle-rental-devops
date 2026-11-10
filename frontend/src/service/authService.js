@@ -2,13 +2,13 @@ const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api/auth
 
 export const apiBaseUrl = API_URL.replace(/\/auth$/, '')
 
-export async function request(endpoint, data, baseUrl = API_URL) {
+export async function request(endpoint, data, baseUrl = API_URL, options = {}) {
   let response
   try {
     response = await fetch(`${baseUrl}${endpoint}`, {
-      method: data === undefined ? 'GET' : 'POST',
+      method: options.method || (data === undefined ? 'GET' : 'POST'),
       credentials: 'include',
-      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'VehicleRental' },
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'VehicleRental', ...options.headers },
       ...(data === undefined ? {} : { body: JSON.stringify(data) }),
     })
   } catch {

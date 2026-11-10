@@ -43,6 +43,16 @@ Backend additions:
 - MySQL schema: `vehicles` table with indexes on `type`, `location`, and `available`, plus idempotent seed fixtures in `Backend/database/int.sql`.
 - REST endpoints: `GET /api/vehicles` (query filters) and `GET /api/vehicles/:id` (individual vehicle details).
 
+## Phase 3: vehicle reservation system
+
+The reservation system is live at `/bookings`, protected by authenticated customer sessions. It provides an interactive booking interface with live vehicle selection or pre-selected vehicle information, rental start/end date pickers, rental duration calculation, and real-time total price computation using the backend database daily rates. It features immediate confirmation feedback with reference IDs, conflict/overlap prevention, and complete customer booking history with cancellation support.
+
+Backend additions:
+- MySQL schema: `reservations` table (`id`, `vehicle_id`, `customer_id`, `start_date`, `end_date`, `status`, `total_price`) with foreign keys to `vehicles` and `users`.
+- Transactional reservation creation preventing double-bookings and date overlaps using database row-level locking (`FOR UPDATE`).
+- Endpoints: `POST /api/reservations`, `GET /api/reservations/my`, `GET /api/reservations/:id`, and `PATCH /api/reservations/:id/cancel` with strict customer ownership and permission enforcement.
+
+
 
 ## Docker Desktop: frontend, backend and MySQL
 

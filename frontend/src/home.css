@@ -196,3 +196,49 @@
   .vehicle-details-layout { grid-template-columns: 1fr; gap: 32px; }
   .details-media { position: static; }
 }
+
+/* Reservation & Bookings Interface */
+.booking-page { max-width: 1240px; margin: auto; padding: 40px 32px 80px; }
+.booking-layout { display: grid; grid-template-columns: 1.25fr 1fr; gap: 36px; align-items: start; margin-top: 30px; }
+.booking-card, .booking-history-card { background: #fff; border: 1px solid #dfe5d8; border-radius: 8px; padding: 32px; box-shadow: 0 4px 18px #19281708; }
+.booking-card h2, .booking-history-card h2 { font-size: 24px; font-weight: 500; margin: 0 0 24px; letter-spacing: -.5px; }
+.reservation-form { display: flex; flex-direction: column; gap: 20px; }
+.form-group { display: flex; flex-direction: column; gap: 8px; }
+.form-group label { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; color: #667461; }
+.form-group input, .form-group select { border: 1px solid #ccd6c7; border-radius: 6px; padding: 12px 14px; font-size: 14px; background: #fff; color: #203224; }
+.selected-vehicle-banner { background: #f4f8f1; border: 1px solid #d7e4cf; border-radius: 8px; padding: 18px 22px; display: flex; justify-content: space-between; align-items: center; gap: 18px; }
+.selected-vehicle-info h3 { font-size: 20px; font-weight: 500; margin: 8px 0 4px; }
+.banner-location { color: #63705f; font-size: 13px; margin: 0; }
+.selected-vehicle-rate { text-align: right; }
+.rate-caption { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #73846e; }
+.selected-vehicle-rate strong { font-size: 22px; font-weight: 600; color: #17251c; }
+.selected-vehicle-rate small { color: #63705f; font-size: 12px; }
+.date-inputs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.price-calculation-card { background: #fbfcf9; border: 1px solid #e2e8dc; border-radius: 6px; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; }
+.calc-row { display: flex; justify-content: space-between; font-size: 14px; color: #5a6b54; }
+.calc-divider { height: 1px; background: #dfe5d8; margin: 4px 0; }
+.total-row { font-size: 16px; color: #17251c; font-weight: 500; align-items: center; }
+.total-row strong { font-size: 22px; font-weight: 700; color: #1f3815; }
+.confirm-btn { width: 100%; justify-content: center; padding: 16px; font-size: 15px; cursor: pointer; }
+.booking-success-box { background: #f4fbf0; border: 1px solid #b8e6a3; border-radius: 8px; padding: 28px; text-align: center; }
+.success-icon { width: 48px; height: 48px; border-radius: 50%; background: #c3ed93; color: #192817; display: grid; place-items: center; font-size: 22px; font-weight: bold; margin: 0 auto 16px; }
+.booking-success-box h3 { font-size: 22px; font-weight: 600; color: #1e3a15; margin: 0 0 10px; }
+.booking-success-box p { color: #435b3c; font-size: 14px; margin: 0 0 18px; }
+.success-meta { display: flex; justify-content: center; gap: 24px; font-size: 13px; color: #2c4723; margin-bottom: 24px; flex-wrap: wrap; }
+.success-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.reservations-list { display: flex; flex-direction: column; gap: 16px; }
+.reservation-item { border: 1px solid #e2e8dc; border-radius: 8px; padding: 18px 20px; background: #fbfcf9; }
+.res-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.res-header h4 { font-size: 16px; font-weight: 600; margin: 0; color: #17251c; }
+.res-details { font-size: 13px; color: #5a6b54; display: flex; flex-direction: column; gap: 4px; }
+.res-details p { margin: 0; }
+.res-actions { margin-top: 14px; padding-top: 12px; border-top: 1px solid #eaefe5; display: flex; justify-content: flex-end; }
+.cancel-btn { background: transparent; border: 1px solid #e07070; color: #b91c1c; padding: 6px 14px; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background .18s; }
+.cancel-btn:hover { background: #fee2e2; }
+
+@media (max-width: 900px) {
+  .booking-layout { grid-template-columns: 1fr; }
+  .date-inputs-grid { grid-template-columns: 1fr; }
+  .selected-vehicle-banner { flex-direction: column; align-items: flex-start; }
+  .selected-vehicle-rate { text-align: left; }
+}

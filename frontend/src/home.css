@@ -242,3 +242,42 @@
   .selected-vehicle-banner { flex-direction: column; align-items: flex-start; }
   .selected-vehicle-rate { text-align: left; }
 }
+
+/* Customer Dashboard Enhancements */
+.customer-dashboard { max-width: 1200px; margin: 30px auto 80px; padding: 0 32px; }
+.dashboard-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 28px; margin: 30px 0 45px; align-items: stretch; }
+.profile-subtitle { color: #8e9e8c; font-size: 13px; margin: 4px 0 20px; }
+.role-badge { display: inline-block; background: #28372b; color: #c3ed93; padding: 2px 8px; border-radius: 4px; font-size: 12px; text-transform: capitalize; }
+.metrics-card { background: #19201a; border: 1px solid #354137; border-radius: 12px; padding: 30px; display: flex; flex-direction: column; justify-content: space-between; }
+.metrics-card h3 { font-size: 18px; font-weight: 500; color: #e1e8dd; margin: 0 0 20px; }
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.stat-box { background: #131a14; border: 1px solid #28362a; border-radius: 8px; padding: 18px 14px; text-align: center; }
+.stat-num { display: block; font-size: 22px; font-weight: 700; color: #c3ed93; margin-bottom: 6px; }
+.stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: #8fa08e; }
+.stats-cta { margin-top: 24px; }
+.quick-book-btn { width: 100%; justify-content: center; text-align: center; }
+.dashboard-reservations-wrapper { display: flex; flex-direction: column; gap: 40px; margin-top: 20px; }
+.dashboard-section { background: #19201a; border: 1px solid #354137; border-radius: 12px; padding: 30px; }
+.section-title-wrap { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 14px; border-bottom: 1px solid #2b392d; }
+.section-title-wrap h2 { font-size: 20px; font-weight: 500; color: #e1e8dd; margin: 0; }
+.count-tag { font-size: 12px; font-weight: 600; color: #c3ed93; background: #253927; padding: 4px 10px; border-radius: 20px; }
+.dashboard-empty-card { text-align: center; padding: 36px 20px; background: #131a14; border: 1px dashed #2b392d; border-radius: 8px; }
+.dashboard-empty-card p { color: #9baa98; margin: 0 0 10px; }
+.empty-subtext { font-size: 13px; color: #738472 !important; margin-bottom: 18px !important; }
+.reservation-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+.dash-res-card { background: #131a14; border: 1px solid #28362a; border-radius: 8px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+.dash-res-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+.dash-res-id { font-size: 11px; color: #7f917e; letter-spacing: .5px; }
+.dash-res-header h3 { font-size: 17px; font-weight: 600; color: #e6ede3; margin: 4px 0 0; }
+.dash-res-body { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #9baa98; }
+.dash-res-row { display: flex; justify-content: space-between; }
+.dash-label { color: #6d806c; }
+.dash-price { color: #c3ed93; font-size: 15px; }
+.dash-res-footer { margin-top: 16px; padding-top: 14px; border-top: 1px solid #212d23; display: flex; justify-content: flex-end; }
+.past-card { opacity: .82; }
+
+@media (max-width: 800px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: 1fr; }
+  .reservation-cards-grid { grid-template-columns: 1fr; }
+}

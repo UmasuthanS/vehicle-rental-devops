@@ -1,0 +1,10 @@
+**
+!package.json
+!package-lock.json
+!Server.js
+!src/
+!src/**
+!scripts/
+!scripts/**
+!database/
+!database/int.sql

@@ -1,0 +1,63 @@
+name: vehicle-rental
+
+services:
+  database:
+    image: vehicle-rental-database:local
+    build:
+      context: ./Backend/database
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-vehicle_rental}
+      MYSQL_USER: ${DB_USER:-vehicle_app}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Run node scripts/docker-setup.js first}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Run node scripts/docker-setup.js first}
+    ports:
+      - "127.0.0.1:${DB_PUBLISHED_PORT:-3307}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", 'MYSQL_PWD="$${MYSQL_PASSWORD}" mysql --protocol=TCP -h 127.0.0.1 -u "$${MYSQL_USER}" "$${MYSQL_DATABASE}" -e "SELECT id FROM users LIMIT 0" >/dev/null 2>&1']
+      interval: 5s
+      timeout: 5s
+      start_period: 30s
+      retries: 30
+    restart: unless-stopped
+
+  backend:
+    image: vehicle-rental-backend:local
+    build:
+      context: ./Backend
+    environment:
+      PORT: "5000"
+      DB_HOST: database
+      DB_PORT: "3306"
+      DB_NAME: ${DB_NAME:-vehicle_rental}
+      DB_USER: ${DB_USER:-vehicle_app}
+      DB_PASSWORD: ${DB_PASSWORD:?Run node scripts/docker-setup.js first}
+      JWT_SECRET: ${JWT_SECRET:?Run node scripts/docker-setup.js first}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
+      # Local HTTP needs non-Secure cookies. Use production only behind HTTPS.
+      NODE_ENV: ${NODE_ENV:-development}
+    depends_on:
+      database:
+        condition: service_healthy
+        restart: true
+    init: true
+    restart: unless-stopped
+
+  frontend:
+    image: vehicle-rental-frontend:local
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api/auth
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-8080}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+        restart: true
+    restart: unless-stopped
+
+volumes:
+  mysql_data:

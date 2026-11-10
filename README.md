@@ -1,8 +1,96 @@
-# Vehicle Rental — Full-stack Authentication
+# Vehicle Rental Management System
 
 Group 79 · University of Ruhuna, Faculty of Engineering
 
 React 19 + Vite + Tailwind, Express 5, MySQL/mysql2, bcrypt and JWT. Existing React components and the centralized fetch client are retained. Public signup creates customers only. Accounts can sign in, open a role-specific dashboard, refresh with their session intact, and sign out.
+
+## Phase 1: homepage and navigation
+
+The public homepage is at `/`. It includes responsive navigation, a local vehicle photograph, search entry point, category links, featured inventory states, the rental process, and footer navigation. Login and registration remain at `/login` and `/register`; `/dashboard` preserves the existing customer/owner/admin landing pages. `/bookings` requires a valid session and preserves its destination through login. Unknown URLs show a recovery link.
+
+`/vehicles` and `/vehicles/:id` are explicitly marked as upcoming Phase 2 destinations; search text and category are preserved in query parameters. Reservation functionality is not implemented in this phase. No database or backend changes were needed.
+
+Featured vehicles request the real `/api/vehicles` endpoint through the shared fetch client, deriving the API root from the existing `VITE_API_URL` ending in `/auth`. The endpoint currently returns 404, so the homepage explains that the catalog is not connected yet. Loading, empty inventory, malformed responses, and network errors are handled separately, with retry. When the API exists, an array or `{ "vehicles": [...] }` is accepted and up to three records are displayed with database prices in LKR. No sample listings are presented as inventory. Contact details are omitted until verified information is configured.
+
+Local commands (use the existing configured environment files):
+
+```sh
+npm ci --prefix frontend
+npm start --prefix Backend
+# In a second terminal:
+npm run dev --prefix frontend
+```
+
+Open http://localhost:5173. Ensure `VITE_API_URL` points to the running backend auth URL and `FRONTEND_URL` matches the Vite origin; restart Vite after editing environment variables. The existing Docker files are unchanged; to display the new frontend with the existing Compose setup, rebuild it with `docker compose up -d --build frontend` and open http://localhost:8080.
+
+Verification commands:
+
+```sh
+npm run lint --prefix frontend
+npm test --prefix frontend
+npm run build --prefix frontend
+```
+
+Phase 1 checks passed: frontend lint, production build, 28 frontend tests, 25 backend tests including real isolated MySQL, and both desktop/mobile authentication browser tests. The existing isolated-database authentication browser tests now start at `/login`. See the testing section below for their environment setup. Homepage desktop/mobile browser checks covered real API-unavailable feedback, category/search navigation, registration/login destinations, mobile menu state, contact scrolling, and horizontal overflow. Hero photograph: [Unsplash image source](https://images.unsplash.com/photo-1503376780353-7e6692767b70), stored locally in `frontend/src/assets/home-hero.jpg` as illustrative imagery, not listed inventory. The previous `hero.png` is a Vite starter graphic and is preserved.
+
+Git: no local or remote develop branch existed after fetching, so local `develop` was initialized at the existing completed baseline (`0e96984`). `feature/homepage` shares that base. Push develop before opening the homepage PR, then merge the PR into develop yourself. Phase 2 begins only after explicit instruction.
+
+## Docker Desktop: frontend, backend and MySQL
+
+Start Docker Desktop, then run these commands from the repository root:
+
+```sh
+node scripts/docker-setup.js
+docker compose up -d --build --wait
+docker compose ps
+docker compose images
+```
+
+Open **http://localhost:8080**. Three local images are built:
+
+| Image | Contents | Access |
+| --- | --- | --- |
+| `vehicle-rental-frontend:local` | React production build served by Nginx | http://localhost:8080 |
+| `vehicle-rental-backend:local` | Node 24/Express API, running as the node user | Internal port 5000; exposed through frontend `/api/` |
+| `vehicle-rental-database:local` | MySQL 8.4 plus the existing users initialization SQL | 127.0.0.1:3307 from your laptop |
+
+The setup script creates a **root `.env`** with fresh random Docker database passwords and a signing secret, preserving it on subsequent runs. This file is ignored by Git and excluded from image build contexts. It is separate from `Backend/.env` and `frontend/.env`, which continue to configure direct local development. Containers use service DNS (`database`, `backend`), never your laptop's `localhost` for inter-container connections.
+
+The browser uses `/api/auth` on the website origin; Nginx proxies it to Express. MySQL must be healthy with a ready users table before the backend starts, and the backend must be healthy before Nginx starts. No host Node or host MySQL installation is required to run the containers; Node is only used by the optional credential generator. Alternatively, copy root `.env.example` to `.env` and replace all password/secret placeholders yourself.
+
+The container database starts empty and is independent from the laptop database. Existing laptop accounts are **not imported automatically**. Data persists in the project-scoped `mysql_data` named volume across restarts, rebuilds, and `docker compose down`. Never delete the volume if you want to keep those records. MySQL initialization SQL and credential environment variables take effect on the first initialization of an empty volume. Changing `.env` passwords later does not change existing MySQL users; perform a reviewed database password change instead of deleting data.
+
+To inspect container data in Workbench, create a separate connection with hostname `127.0.0.1`, port `3307`, username `vehicle_app`, and the `DB_PASSWORD` from the **root** `.env`. Select the `vehicle_rental` schema. Or open a MySQL prompt and enter that password:
+
+```sh
+docker compose exec database mysql -u vehicle_app -p vehicle_rental
+```
+
+Useful commands:
+
+```sh
+# Inspect status/logs (do not share logs containing private account data)
+docker compose ps
+docker compose logs --tail=50 backend database frontend
+# Run an HTTP authentication smoke test and clean up its synthetic account
+node scripts/docker-smoke.js
+# Optional: also recreate this project’s containers to verify data/session persistence
+SMOKE_RESTART=1 node scripts/docker-smoke.js
+# Stop containers; keep database records
+docker compose down
+# Start again using existing images and records
+docker compose up -d --wait
+# Apply the additive users initialization to an existing container database
+docker compose exec backend npm run migrate
+# Promote a registered container account through the trusted local command
+docker compose exec backend npm run provision -- person@example.com owner
+```
+
+To change the website port, update both `FRONTEND_PORT` and `FRONTEND_URL` in root `.env`, then run `docker compose up -d --wait`. `DB_PUBLISHED_PORT` controls only Workbench access; the backend always uses the database container's port 3306. `docker compose build` builds all three images without starting containers. `.dockerignore` allowlists prevent local credentials, dependencies, tests, and build artifacts from entering build contexts.
+
+This Compose configuration serves local HTTP and uses `NODE_ENV=development` so browser session cookies work. The frontend still uses a production static build. Before public deployment, add HTTPS and set `NODE_ENV=production`, the real `FRONTEND_URL`, and appropriate proxy/rate-limit configuration. The backend image itself defaults to production; Compose explicitly overrides it for localhost. MySQL is bound only to laptop loopback; the backend has no published host port. Images are built locally, without pushing to a registry. See the official [Compose startup ordering](https://docs.docker.com/compose/how-tos/startup-order/) and [MySQL image initialization](https://hub.docker.com/_/mysql/) references.
+
+Verified: all three images built for Docker Desktop on Apple Silicon; all containers became healthy; the HTTP smoke test passed, including database/session persistence across container removal and recreation. Desktop (1440px) and mobile (390px) Chrome flows passed registration, login, refresh, role checks, and logout. Synthetic test accounts were removed.
 
 ## Run on macOS
 

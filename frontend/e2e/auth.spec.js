@@ -15,7 +15,7 @@ test.afterAll(async () => {
   if (pool) { await pool.execute('DELETE FROM users WHERE email = ?', [email]); await pool.end() }
 })
 test('register, verify MySQL hash, login, restore session, enforce roles, logout', async ({ page, context }) => {
-  await page.goto('/')
+  await page.goto('/login')
   await page.getByRole('button', { name: 'Create an account' }).click()
   await page.getByLabel('Full name').fill('Browser Driver')
   await page.getByLabel('Email address').fill(email)
@@ -46,7 +46,7 @@ test('register, verify MySQL hash, login, restore session, enforce roles, logout
     await expect(page.getByRole('heading', { name: role === 'owner' ? 'Vehicle owner dashboard' : 'Administration dashboard' })).toBeVisible()
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
-  await page.getByRole('button', { name: 'Sign out' }).click()
+  await page.getByRole('main').getByRole('button', { name: 'Sign out' }).click()
   await expect(page.getByRole('heading', { name: 'Welcome back.' })).toBeVisible()
   expect((await page.request.get('http://localhost:5001/api/auth/me')).status()).toBe(401)
   await page.reload()

@@ -52,6 +52,17 @@ Backend additions:
 - Transactional reservation creation preventing double-bookings and date overlaps using database row-level locking (`FOR UPDATE`).
 - Endpoints: `POST /api/reservations`, `GET /api/reservations/my`, `GET /api/reservations/:id`, and `PATCH /api/reservations/:id/cancel` with strict customer ownership and permission enforcement.
 
+## Phase 4: customer dashboard and rental management
+
+The customer dashboard at `/dashboard` provides a personalized experience for authenticated users:
+- Personalized welcome greeting and user profile information (Name, Email, Role, Status).
+- Rental activity overview metrics (Total Bookings, Upcoming Journeys, Total Amount Spent in LKR).
+- Real-time separation of **Upcoming Reservations** and **Past & Cancelled Reservations** sourced directly from the backend.
+- Inline cancellation capability for upcoming active bookings, updating state and database records immediately.
+- Fast navigation to browse vehicles (`/vehicles`), create new bookings (`/bookings`), and working sign-out.
+- Role isolation: preserved existing specialized owner and admin dashboard workspaces.
+
+
 
 
 ## Docker Desktop: frontend, backend and MySQL
